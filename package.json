@@ -1,0 +1,23 @@
+{
+  "name": "task-1",
+  "version": "1.0.0",
+  "description": "<!-- Maha was here -->",
+  "homepage": "https://github.com/mahakabi/task-1#readme",
+  "bugs": {
+    "url": "https://github.com/mahakabi/task-1/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mahakabi/task-1.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
