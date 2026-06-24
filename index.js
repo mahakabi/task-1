@@ -1,64 +1,169 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path'); // Used in sendFile()
 
-const path = require('path'); //Used in sendFile()
-const usersRouter = require('./routes/users');
+// Router
+const usersRouter = require('./routes/users'); // Router from users.js
 
+/**
+ * ===
+ * Functions
+ * ===
+ */
 
 function logRequest(req, res, next) {
     console.log('Request Received');
     next();
 }
 
-function sendResponse(req, res){
+function sendResponse(req, res) {
     res.send('Route handler completed');
 }
 
+// Custom middleware function global
+function requestLogger(req, res, next) {
+    console.log(`${req.method} ${req.url}`);
+    next();
+}
+
+// Custom middleware function targeted
+function checkAccess(req, res, next) {
+    console.log('Checking Access');
+    next();
+}
+
+// Middleware chain 1
+function firstMiddleware(req, res, next) {
+    console.log('First Middleware');
+    next();
+}
+
+// Middleware chain 2
+function secondMiddleware(req, res, next) {
+    console.log('Second Middleware');
+    next();
+}
+
+// Passing control test (next() inside conditions)
+function checkQuery(req, res, next) {
+    if (req.query.admin === 'true') {
+        next();
+        return;
+    }
+
+    res.status(403).send('Admin access required');
+}
+
+/**
+ * ===
+ * Middleware
+ * ===
+ */
+
+// Custom function global usage
+app.use(requestLogger);
+
+// Global middleware flow test
+app.use((req, res, next) => {
+    console.log('Middleware flow test');
+    next();
+});
+
+// Router usage
 app.use('/users', usersRouter);
+
+/**
+ * ===
+ * Routes
+ * ===
+ */
+
+//
+// V1.1
+//
 
 // GET request to homepage
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+    res.send('Hello World!');
 });
-
-// Start server
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
-
-// Pages
 
 // About Page
-app.get('/about', (req,res) => {
+app.get('/about', (req, res) => {
     res.send('About Page');
 });
 
-//Contact Page
-app.get('/contact', (req,res) => {
+// Contact Page
+app.get('/contact', (req, res) => {
     res.send('Contact Page');
 });
 
 // User profiles
-app.get('/users/:id', (req,res) => {
+app.get('/users/:id', (req, res) => {
     res.send(`User ID: ${req.params.id}`);
 });
 
-// Products w Reviews
-app.get('/products/:productId/reviews/:reviewId', (req,res) => {
+// Products with Reviews
+app.get('/products/:productId/reviews/:reviewId', (req, res) => {
     res.send(`Product: ${req.params.productId}, Reviews: ${req.params.reviewId}`);
-})
+});
 
+// Handler functions test
 app.get('/handler-demo', logRequest, sendResponse);
 
-// Response Methods
+//
+// V1.2
+//
 
-//Send
+// JSON web test
+app.get('/request-info', (req, res) => {
+    res.json({
+        method: req.method,
+        url: req.url,
+        ip: req.ip
+    });
+});
+
+// Status & JSON web test
+app.get('/success', (req, res) => {
+    res.status(200).json({
+        message: 'Success'
+    });
+});
+
+// Specified middleware usage test
+app.get('/protected', checkAccess, (req, res) => {
+    res.send('Protected Route');
+});
+
+// Specified middleware chain test
+app.get('/chain', firstMiddleware, secondMiddleware, (req, res) => {
+    res.send('Middleware chain test');
+});
+
+// Passing control middleware test
+app.get('/admin', checkQuery, (req, res) => {
+    res.send('Welcome Admin');
+});
+
+// Error test
+app.get('/error', (req, res, next) => {
+    const error = new Error('Something went wrong');
+    next(error);
+});
+
+/**
+ * ===
+ * Response Methods
+ * ===
+ */
+
+// Send
 app.get('/send', (req, res) => {
     res.send('Hello from res.send()');
 });
 
-// Json
+// JSON
 app.get('/json', (req, res) => {
     res.json({
         name: 'Hamzah',
@@ -76,8 +181,29 @@ app.get('/redirect', (req, res) => {
     res.redirect('/');
 });
 
-// Send Files
-app.get('/send', (req, res) => {
+// Send File
+app.get('/file', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'hello.html'));
 });
 
+/**
+ * ===
+ * Error Middleware
+ * ===
+ */
+
+app.use((err, req, res, next) => {
+    console.error(err.message);
+
+    res.status(500).send('Internal Server Error');
+});
+
+/**
+ * ===
+ * Server
+ * ===
+ */
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}\n`);
+});
