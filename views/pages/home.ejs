@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    
+    <h1>Welcome <%= name %></h1>
+    <p>Role: <%= role %></p>
+
+    <h2>Skills</h2>
+
+    <ul>
+        <% skills.forEach(skill => { %>
+         <li><%= skill %></li>
+        <% }) %>
+    </ul>
+
+    <% if (isAdmin) { %>
+        <p>Admin Access</p>
+    <% } %>
+
+</body>
+</html>
