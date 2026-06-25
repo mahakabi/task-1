@@ -4,6 +4,7 @@ const port = 3000;
 const path = require('path'); // Used in sendFile()
 
 app.set('view engine', 'ejs');
+app.set('trust proxy', true);
 
 // Router
 const usersRouter = require('./routes/users'); // Router from users.js
@@ -310,6 +311,30 @@ app.get('/flow-demo', (req, res) => {
 app.get('/flow-chain', flowOne, flowTwo, (req, res) => {
     debugRoutes('Route Handler');
     res.send('Flow Chain');
+});
+
+//
+// P7
+//
+
+app.get('/ip', (req, res) => {
+    res.json({
+        ip: req.ip
+    });
+});
+
+app.get('/proxy-status', (req, res) => {
+    res.json({
+        trustProxy: app.get('trust proxy')
+    });
+});
+
+app.get('/request-details', (req, res) => {
+    res.json({
+        ip: req.ip,
+        protocol: req.protocol,
+        secure: req.secure
+    });
 });
 
 
