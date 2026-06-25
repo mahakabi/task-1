@@ -9,8 +9,12 @@ app.set('trust proxy', true);
 // Router
 const usersRouter = require('./routes/users'); // Router from users.js
 
+// Database
+const { users, getUserById } = require('./database/users');
+
 // Third Party Middleware
 const morgan = require('morgan');
+const { nextTick } = require('process');
 
 // Debuggers
 const debug = require('debug')('app');
@@ -335,6 +339,82 @@ app.get('/request-details', (req, res) => {
         protocol: req.protocol,
         secure: req.secure
     });
+});
+
+//
+// P8
+//
+
+// Read
+app.get('/db/users', (req, res) => {
+    res.json(users);
+});
+
+// Read One from DB
+app.get('/db/users/:id', (req, res) => {
+    const user = users.find(user => user.id === Number(req.params.id));
+
+    if (!user) {
+        return res.status(404).json({
+            error: 'User not found'
+        });
+    }
+    res.json(user);
+});
+
+// Create
+app.post('/db/users', (req, res) => {
+    const newUser = {
+        id: users.length + 1,
+        name: req.body.name
+    };
+
+    users.push(newUser);
+
+    res.status(201).json(newUser);
+});
+
+// Update
+app.put('/db/users/:id', (req, res) => {
+    const user = users.find(user => user.id === Number(req.params.id));
+
+    if (!user) {
+        return res.status(404).json({
+            error: 'User not found'
+        });
+    }
+
+    user.name = req.body.name;
+    res.json(user);
+});
+
+// Delete
+app.delete('/db/users/:id', (req, res) => {
+    const index = users.findIndex(user => user.id === Number(req.params.id));
+
+    if (index === -1) {
+        return res.status(404).json({
+            error: 'User not found'
+        });
+    }
+
+    const deletedUser = users.splice(index, 1);
+    res.json(deletedUser);
+});
+
+app.get('/async-users/:id', async (req, res, next) => {
+    try {
+        const user = await getUserById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                error: 'User not found'
+            });
+        }
+        res.json(user);
+    } catch (err) {
+        next(err);
+    }
 });
 
 

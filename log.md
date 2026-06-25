@@ -97,3 +97,15 @@ const port = process.env.PORT || 3000;
 - Did the route run?
 - Did the data look correct?
 - Did an error occur?
+
+## CRUD
+
+### Mapping 
+GET    /db/users
+GET    /db/users/:id
+
+POST   /db/users
+
+PUT    /db/users/:id
+
+DELETE /db/users/:id
