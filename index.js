@@ -125,6 +125,33 @@ app.use(express.static('public'));
 // Third party middleware
 app.use(morgan('dev'));
 
+app.use((req, res, next) => {
+    res.success = function(data) {
+        this.json({
+            success: true,
+            data
+        });
+    };
+
+    res.fail = function(message) {
+        this.status(400).json({
+            success: false,
+            error: message
+        });
+    };
+
+    next();
+});
+
+app.use((req, res, next) => {
+    req.currentUser = {
+        id: 1,
+        name: 'Hamzah'
+    };
+
+    next();
+});
+
 /**
  * ===
  * Routes
@@ -415,6 +442,39 @@ app.get('/async-users/:id', async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+});
+
+//
+// P9
+//
+
+app.get('/override-demo', (req, res) => {
+    res.json({
+        message: 'Override Demo'
+    });
+});
+
+app.get('/custom-response', (req, res) => {
+    res.success({
+        name: 'Hamzah',
+        role: 'Intern'
+    });
+});
+
+app.get('/current-user', (req, res) => {
+    res.json(req.currentUser);
+});
+
+app.get('/helper-demo', (req, res) => {
+    const validUser = false;
+
+    if (!validUser) {
+        return res.fail('User not found');
+    }
+
+    res.success({
+        name: 'Hamzah'
+    });
 });
 
 
