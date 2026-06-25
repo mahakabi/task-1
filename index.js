@@ -6,6 +6,8 @@ const path = require('path'); // Used in sendFile()
 // Router
 const usersRouter = require('./routes/users'); // Router from users.js
 
+const morgan = require('morgan');
+
 /**
  * ===
  * Functions
@@ -55,6 +57,16 @@ function checkQuery(req, res, next) {
     res.status(403).send('Admin access required');
 }
 
+function orderOne(req, res, next) {
+    console.log('Order 1');
+    next();
+}
+
+function orderTwo(req, res, next) {
+    console.log('Order Two');
+    next();
+}
+
 /**
  * ===
  * Middleware
@@ -73,6 +85,23 @@ app.use((req, res, next) => {
 // Router usage
 app.use('/users', usersRouter);
 
+// Path specific middleware
+app.use('/admin-area', (req, res, next) => {
+    console.log('Admin Area Middleware');
+    next();
+});
+
+// Express specific middleware
+// JSON Parse
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+// Static files
+app.use(express.static('public'));
+
+// Third party middleware
+app.use(morgan('dev'));
+
 /**
  * ===
  * Routes
@@ -80,7 +109,7 @@ app.use('/users', usersRouter);
  */
 
 //
-// V1.1
+// P1
 //
 
 // GET request to homepage
@@ -112,7 +141,7 @@ app.get('/products/:productId/reviews/:reviewId', (req, res) => {
 app.get('/handler-demo', logRequest, sendResponse);
 
 //
-// V1.2
+// P2
 //
 
 // JSON web test
@@ -151,6 +180,42 @@ app.get('/error', (req, res, next) => {
     const error = new Error('Something went wrong');
     next(error);
 });
+
+//
+// P3
+//
+
+// Path specific middleware
+app.get('/admin-area/dashboard', (req, res) => {
+    res.send('Admin Dashboard');
+});
+
+// Test route
+app.post('/user', (req, res) => {
+    res.json({
+        received: req.body
+    });
+});
+
+app.post('/form', (req, res) => {
+    res.json({
+        recieved: req.body
+    });
+});
+
+app.get('/order-demo', orderOne, orderTwo, (req, res) => {
+    console.log('Route Handler');
+    res.send('Order Demo Complete');
+});
+
+app.get('/test', (req, res) => {
+    res.send('First Route');
+});
+
+app.get('/test', (req, res) => {
+    res.send('Second Route');
+});
+
 
 /**
  * ===
