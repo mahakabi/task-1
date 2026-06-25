@@ -54,3 +54,16 @@ project/
 │
 ├── index.js
 └── package.json
+
+## Errors
+
+### Typical Error Flow
+Route
+↓
+Error Created
+↓
+next(error)
+↓
+Error Middleware
+↓
+Response

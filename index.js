@@ -247,6 +247,27 @@ app.get('/dashboard', (req, res) => {
     });
 });
 
+//
+// P5
+//
+
+app.get('/sync-error', (req, res) => {
+    throw new Error('Synchronous Error');
+});
+
+app.get('/async-error', (req, res, next) => {
+    setTimeout(() => {
+        next(new Error('Async Error'));
+    }, 1000);
+});
+
+app.get('/not-found', (req, res, next) => {
+    const error = new Error('User not found');
+    error.status = 404;
+
+    next(error);
+});
+
 
 /**
  * ===
@@ -288,10 +309,28 @@ app.get('/file', (req, res) => {
  * ===
  */
 
+// Simple error middleware
+// app.use((err, req, res, next) => {
+//     console.error(err.message);
+//     res.status(err.status || 500).json({
+//         error: err.message
+//     });
+// });
+
+// Updated error middleware
 app.use((err, req, res, next) => {
     console.error(err.message);
 
-    res.status(500).send('Internal Server Error');
+    if(process.env.NODE_ENV === 'development') {
+        return res.status(err.status || 500).json({
+            error: err.message,
+            stack: err.stack
+        });
+    }
+
+    res.status(err.status || 500).json({
+        error: 'Internal Server Error'
+    });
 });
 
 /**
