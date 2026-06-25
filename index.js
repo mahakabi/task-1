@@ -3,9 +3,12 @@ const app = express();
 const port = 3000;
 const path = require('path'); // Used in sendFile()
 
+app.set('view engine', 'ejs');
+
 // Router
 const usersRouter = require('./routes/users'); // Router from users.js
 
+// Thir Part Middleware
 const morgan = require('morgan');
 
 /**
@@ -214,6 +217,34 @@ app.get('/test', (req, res) => {
 
 app.get('/test', (req, res) => {
     res.send('Second Route');
+});
+
+//
+// P4
+//
+
+app.get('/home', (req, res) => {
+    res.render('pages/home', { 
+        name: 'Hamzah',
+        role: 'Intern',
+        skills: ['Express', 'Node.js', 'JavaScript'],
+        isAdmin: true
+    });
+});
+
+app.get('/profile/:name', (req, res) => {
+    res.render('pages/profile', {
+        name: req.params.name
+    });
+});
+
+app.get('/dashboard', (req, res) => {
+    res.render('home', {
+        name: req.query.name || 'Guest',
+        role: 'User',
+        skills: ['Express'],
+        isAdmin: req.query.admin === 'true'
+    });
 });
 
 
