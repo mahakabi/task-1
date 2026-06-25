@@ -8,8 +8,13 @@ app.set('view engine', 'ejs');
 // Router
 const usersRouter = require('./routes/users'); // Router from users.js
 
-// Thir Part Middleware
+// Third Party Middleware
 const morgan = require('morgan');
+
+// Debuggers
+const debug = require('debug')('app');
+const debugRoutes = require('debug')('app');
+const debugMiddleware = require('debug')('app');
 
 /**
  * ===
@@ -28,7 +33,7 @@ function sendResponse(req, res) {
 
 // Custom middleware function global
 function requestLogger(req, res, next) {
-    console.log(`${req.method} ${req.url}`);
+    debugMiddleware(`Incoming request: ${req.method} ${req.url}`);
     next();
 }
 
@@ -67,6 +72,16 @@ function orderOne(req, res, next) {
 
 function orderTwo(req, res, next) {
     console.log('Order Two');
+    next();
+}
+
+function flowOne(req, res, next) {
+    debugMiddleware('flowOne');
+    next();
+}
+
+function flowTwo(req, res, next) {
+    debugMiddleware('flowTwo');
     next();
 }
 
@@ -122,6 +137,7 @@ app.get('/', (req, res) => {
 
 // About Page
 app.get('/about', (req, res) => {
+    debugRoutes('About route visited');
     res.send('About Page');
 });
 
@@ -266,6 +282,34 @@ app.get('/not-found', (req, res, next) => {
     error.status = 404;
 
     next(error);
+});
+
+//
+// P6
+//
+
+app.get('/debug-demo', (req, res) => {
+    debug('Debug route visited');
+
+    res.send('Debug Demo');
+});
+
+app.get('/env', (req, res) => {
+    res.json({
+        nodeEnv: process.env.NODE_ENV,
+        debug: process.env.DEBUG
+    });
+});
+
+app.get('/flow-demo', (req, res) => {
+    debugRoutes('Flow demo route reached');
+
+    res.send('Flow Demo');
+});
+
+app.get('/flow-chain', flowOne, flowTwo, (req, res) => {
+    debugRoutes('Route Handler');
+    res.send('Flow Chain');
 });
 
 
